@@ -1637,7 +1637,7 @@ canvas:not(#ribbon-canvas),
   }
 }
 :root {
-  --global-font-size: 14px;
+  --global-font-size: 16px;
   --global-bg: #fff;
   --font-color: #4c4948;
   --hr-border: #a4d8fa;
@@ -1742,7 +1742,7 @@ body {
   background: var(--global-bg);
   color: var(--font-color);
   font-size: var(--global-font-size);
-  font-family: 'LXGW WenKai Mono TC', monospace;
+  font-family: 'LXGW WenKai', '霞鹜文楷', sans-serif;
   line-height: 2;
   -webkit-tap-highlight-color: rgba(0,0,0,0);
   scroll-behavior: smooth;
@@ -1861,7 +1861,7 @@ a:hover {
 .site-name,
 #aside-content .author-info-name,
 #aside-content .author-info-description {
-  font-family: 'LXGW WenKai Mono TC', monospace;
+  font-family: 'LXGW WenKai', '霞鹜文楷', sans-serif;
 }
 .text-center {
   text-align: center;
@@ -2036,7 +2036,7 @@ figure.highlight pre .javascript .function {
 .container pre,
 .container code {
   font-size: var(--global-font-size);
-  font-family: 'LXGW WenKai Mono TC', monospace !important;
+  font-family: 'LXGW WenKai', '霞鹜文楷', monospace !important;
   border-radius: 6px;
 }
 .container code {
