@@ -1,0 +1,338 @@
+<!DOCTYPE html><html lang="en" data-theme="dark"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Wireshark 网络抓包与分析完全指南 | Doglists's Blog</title><meta name="author" content="Doglists"><meta name="copyright" content="Doglists"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#0d0d0d"><meta name="description" content="什么是 Wireshark建议读者在本地搭建实验环境进行练习，逐步熟悉Wireshark的各项功能。 工欲善其事，必先利其器。——《论语·卫灵公》  Wireshark 是全球最流行的网络协议分析工具，也是网络安全从业者、运维工程师和开发人员必备的抓包利器。它能够实时捕获网络数据包，并以人类可读的格式详细展示每个数据包的层层封装信息。 在网络安全领域，Wireshark 是检测网络攻击、分析恶意流">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Wireshark 网络抓包与分析完全指南">
+<meta property="og:url" content="https://doglists.github.io/2026/03/06/Wireshark/index.html">
+<meta property="og:site_name" content="Doglists&#39;s Blog">
+<meta property="og:description" content="什么是 Wireshark建议读者在本地搭建实验环境进行练习，逐步熟悉Wireshark的各项功能。 工欲善其事，必先利其器。——《论语·卫灵公》  Wireshark 是全球最流行的网络协议分析工具，也是网络安全从业者、运维工程师和开发人员必备的抓包利器。它能够实时捕获网络数据包，并以人类可读的格式详细展示每个数据包的层层封装信息。 在网络安全领域，Wireshark 是检测网络攻击、分析恶意流">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://doglists.github.io/img/%E5%A4%B4%E5%83%8F.jpg">
+<meta property="article:published_time" content="2026-03-06T02:24:11.000Z">
+<meta property="article:modified_time" content="2026-03-06T03:09:36.383Z">
+<meta property="article:author" content="Doglists">
+<meta property="article:tag" content="CTF">
+<meta property="article:tag" content="网络安全">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://doglists.github.io/img/%E5%A4%B4%E5%83%8F.jpg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Wireshark 网络抓包与分析完全指南",
+  "url": "https://doglists.github.io/2026/03/06/Wireshark/",
+  "image": "https://doglists.github.io/img/%E5%A4%B4%E5%83%8F.jpg",
+  "datePublished": "2026-03-06T02:24:11.000Z",
+  "dateModified": "2026-03-06T03:09:36.383Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Doglists",
+      "url": "https://Doglists.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://doglists.github.io/2026/03/06/Wireshark/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//fonts.googleapis.com" crossorigin=""/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.4"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=LXGW+WenKai:wght@300;400;500;600;700&amp;display=swap" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Failed',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Wireshark 网络抓包与分析完全指南',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><style>#back-to-top {
+  position: fixed;
+  bottom: 40px;
+  right: 40px;
+  z-index: 9999;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+#back-to-top.show {
+  opacity: 1;
+  visibility: visible;
+}
+#back-to-top a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  background: var(--btn-bg);
+  color: var(--btn-color);
+  border-radius: 8px;
+  text-decoration: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+}
+#back-to-top a:hover {
+  background: var(--btn-hover-bg);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+#back-to-top i {
+  font-size: 20px;
+}
+@media (max-width: 768px) {
+  #back-to-top {
+    bottom: 20px;
+    right: 20px;
+  }
+  #back-to-top a {
+    width: 44px;
+    height: 44px;
+  }
+}</style><meta name="generator" content="Hexo 8.1.1"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/%E5%A4%B4%E5%83%8F.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">4</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">2</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/link"><i class="fa-fw fas fa-link"></i><span> Friends</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Doglists's Blog</span></a><a class="nav-page-title" href="/"><span class="site-name">Wireshark 网络抓包与分析完全指南</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  Back to Home</span></span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/link"><i class="fa-fw fas fa-link"></i><span> Friends</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">Wireshark 网络抓包与分析完全指南</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2026-03-06T02:24:11.000Z" title="Created 2026-03-06 10:24:11">2026-03-06</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-03-06T03:09:36.383Z" title="Updated 2026-03-06 11:09:36">2026-03-06</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h2 id="什么是-Wireshark"><a href="#什么是-Wireshark" class="headerlink" title="什么是 Wireshark"></a>什么是 Wireshark</h2><p>建议读者在本地搭建实验环境进行练习，逐步熟悉Wireshark的各项功能。</p>
+<p align="right">工欲善其事，必先利其器。——《论语·卫灵公》</p>
+
+<p>Wireshark 是全球最流行的网络协议分析工具，也是网络安全从业者、运维工程师和开发人员必备的抓包利器。它能够实时捕获网络数据包，并以人类可读的格式详细展示每个数据包的层层封装信息。</p>
+<p>在网络安全领域，Wireshark 是检测网络攻击、分析恶意流量、进行数字取证的核心工具。对于网络管理员而言，它是排查网络故障、定位性能瓶颈的利器。对于开发人员，Wireshark 则是调试网络应用、排查通信问题的必备工具。</p>
+<h2 id="安装与运行"><a href="#安装与运行" class="headerlink" title="安装与运行"></a>安装与运行</h2><h3 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h3><p>Wireshark 支持三大主流操作系统：Windows、macOS 和 Linux。在安装之前，需要确保系统满足基本要求。</p>
+<p>对于 Windows 系统，推荐使用 Windows 10 或更高版本以获得最佳兼容性。macOS 用户需要 macOS 10.13 或更高版本。Linux 用户则需要较新的内核版本以支持数据包捕获功能。</p>
+<h3 id="在-Windows-上安装"><a href="#在-Windows-上安装" class="headerlink" title="在 Windows 上安装"></a>在 Windows 上安装</h3><p>访问 <a target="_blank" rel="noopener" href="https://www.wireshark.org/">Wireshark 官方网站</a> ，点击下载按钮。根据你的系统架构选择 32 位或 64 位安装包——大多数现代电脑使用的是 64 位系统，可以在系统信息中确认。</p>
+<p>下载完成后，运行安装程序。安装过程中会提示安装 Npcap，这是 Windows 平台进行数据包捕获的核心库，务必安装。Wireshark 无法捕获网络数据包，除非系统中已正确安装 Npcap。</p>
+<p>安装程序还会询问是否安装 USBPcap，如果你需要捕获 USB 设备通信，可以选择安装；对于普通网络分析，可以跳过此项。</p>
+<p>安装完成后，从开始菜单或桌面快捷方式启动 Wireshark。初次运行时可能需要管理员权限，因为捕获网络数据包通常需要提升的权限。</p>
+<h3 id="在-macOS-上安装"><a href="#在-macOS-上安装" class="headerlink" title="在 macOS 上安装"></a>在 macOS 上安装</h3><p>macOS 用户有两种安装方式：直接下载或通过 Homebrew 包管理器安装。</p>
+<p>使用 Homebrew 安装更为便捷。首先更新 Homebrew：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">brew update</span><br></pre></td></tr></table></figure>
+
+<p>然后安装 Wireshark：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">brew install wireshark</span><br></pre></td></tr></table></figure>
+
+<p>如果偏好直接安装，从官网下载 macOS 版本的 DMG 文件，打开后将 Wireshark 应用程序拖入应用程序文件夹即可。</p>
+<p>macOS 首次捕获数据包时，系统会提示需要相应权限。</p>
+<h3 id="在-Linux-上安装"><a href="#在-Linux-上安装" class="headerlink" title="在 Linux 上安装"></a>在 Linux 上安装</h3><p>Linux 用户通过各发行版的包管理器安装。</p>
+<p>对于 Debian&#x2F;Ubuntu 等 Debian 系发行版：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt update</span><br><span class="line"><span class="built_in">sudo</span> apt install wireshark</span><br></pre></td></tr></table></figure>
+
+<p>安装过程中会询问是否允许非超级用户捕获数据包，建议选择”是”，这样无需 root 权限即可运行 Wireshark。</p>
+<p>对于 Fedora&#x2F;RHEL 等发行版：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> dnf install wireshark-qt</span><br></pre></td></tr></table></figure>
+
+<p>对于 Arch Linux：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> pacman -S wireshark-qt</span><br></pre></td></tr></table></figure>
+
+<p>安装完成后，将当前用户加入 wireshark 组以获得捕获权限：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> usermod -a -G wireshark <span class="variable">$USER</span></span><br></pre></td></tr></table></figure>
+
+<p>需要重新登录使组权限生效。</p>
+<h2 id="核心功能详解"><a href="#核心功能详解" class="headerlink" title="核心功能详解"></a>核心功能详解</h2><h3 id="界面布局"><a href="#界面布局" class="headerlink" title="界面布局"></a>界面布局</h3><p>Wireshark 的主界面分为多个功能区域，每个区域承担不同的信息展示任务。</p>
+<p>最上方是工具栏，提供开始捕获、停止捕获、重新捕获等常用操作的快捷按钮。工具栏下方是接口选择区，列出所有可用的网络接口，包括以太网适配器、Wi-Fi 网卡等。点击某个接口即可开始捕获该接口上的数据包。</p>
+<p>主内容区采用经典的三栏布局。上栏是数据包列表，以表格形式展示捕获的每个数据包，包括编号、时间、源地址、目标地址、协议类型和简要信息。中栏是数据包详情，选中某个数据包后，该栏显示该包的层次化结构，从物理帧到传输层再到应用层，逐层展开。下栏是数据包字节，以十六进制和 ASCII 两种形式展示原始数据。</p>
+<h3 id="捕获过滤器"><a href="#捕获过滤器" class="headerlink" title="捕获过滤器"></a>捕获过滤器</h3><p>捕获过滤器在数据包捕获阶段发挥作用，决定哪些数据包被记录到文件中。使用捕获过滤器可以减少捕获的数据量，避免被无关流量淹没。</p>
+<p>捕获过滤器采用 BPF（Berkic Packet Filter）语法，基础语法包括 host、net、port 等关键字。例如，捕获特定 IP 地址的流量：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">host 192.168.1.1</span><br></pre></td></tr></table></figure>
+
+<p>捕获特定端口的 TCP 流量：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tcp port 80</span><br></pre></td></tr></table></figure>
+
+<p>捕获端口范围内的流量：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">portrange 80-443</span><br></pre></td></tr></table></figure>
+
+<p>可以使用逻辑运算符组合多个条件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tcp port 80 or tcp port 443 and not host 10.0.0.1</span><br></pre></td></tr></table></figure>
+
+<p>在开始捕获前，在捕获选项对话框中输入过滤器表达式，或直接在工具栏的捕获过滤器输入框中键入。</p>
+<h3 id="显示过滤器"><a href="#显示过滤器" class="headerlink" title="显示过滤器"></a>显示过滤器</h3><p>显示过滤器是 Wireshark 最为强大的功能之一，它在捕获完成后对数据进行过滤，允许你反复尝试不同的过滤器而无需重新捕获。显示过滤器支持更多的协议和字段，功能远比捕获过滤器强大。</p>
+<p>在过滤输入框中键入表达式后按回车键即可应用过滤器。输入框变绿表示过滤器语法正确，变红则表示语法错误。</p>
+<p>基础过滤语法使用协议字段名和比较运算符。按 IP 地址过滤：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip.addr == 192.168.1.1</span><br></pre></td></tr></table></figure>
+
+<p>按 TCP 端口过滤：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tcp.port == 80</span><br></pre></td></tr></table></figure>
+
+<p>按协议过滤：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http</span><br></pre></td></tr></table></figure>
+
+<p>逻辑运算符包括：and（与）、or（或）、not（非）。组合过滤示例：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http and not ip.addr == 192.168.1.1</span><br></pre></td></tr></table></figure>
+
+<p>比较运算符包括：&#x3D;&#x3D;（等于）、!&#x3D;（不等于）、&gt;（大于）、&lt;（小于）、&gt;&#x3D;（大于等于）、&lt;&#x3D;（小于等于）。还包含 contains（包含）和 matches（正则匹配）等特殊运算符。</p>
+<h3 id="追踪-TCP-流"><a href="#追踪-TCP-流" class="headerlink" title="追踪 TCP 流"></a>追踪 TCP 流</h3><p>追踪 TCP 流是分析应用层通信的利器。Wireshark 可以重组某个 TCP 连接的所有数据段，以易于阅读的格式呈现完整的”对话”内容。</p>
+<p>右键单击任意数据包，选择”追踪流”-“TCP 流”。新窗口会显示客户端到服务器的全部通信内容，不同方向的数据用不同颜色区分。</p>
+<p>这一功能对于分析 HTTP 流量尤为有用，可以看到完整的请求和响应，包括请求头、响应头和消息体。对于未加密的 HTTP 流量，甚至可以直接看到网页内容。</p>
+<p>追踪流窗口支持多种数据格式视图：ASCII、十六进制、C 数组和原始二进制。也可以单独显示某一方向的数据。</p>
+<h3 id="协议分析"><a href="#协议分析" class="headerlink" title="协议分析"></a>协议分析</h3><p>Wireshark 对常见协议提供专门的解析支持，使得协议分析更加直观。</p>
+<p>HTTP（超文本传输协议）是 Web 流量分析的核心。使用过滤器 <code>http</code> 可以只显示 HTTP 流量。选中 HTTP 数据包后，数据包详情栏会显示请求方法（GET、POST 等）、URL、请求头和响应头等详细信息。Wireshark 还会在数据包详情栏生成 HTTP 请求列表视图，方便查看所有 Web 请求。</p>
+<p>TCP（传输控制协议）是最常用的传输层协议。分析 TCP 时需关注三次握手（SYN、SYN-ACK、ACK）建立连接的过程。重传和乱序是常见的性能问题信号。Wireshark 会自动标注许多常见问题。</p>
+<p>DNS（域名系统）负责域名到 IP 地址的解析。DNS 流量往往能揭示系统的网络访问行为。使用过滤器 <code>dns</code> 查看 DNS 查询和响应。观察异常的 DNS 查询可以发现恶意软件。</p>
+<h2 id="典型应用场景"><a href="#典型应用场景" class="headerlink" title="典型应用场景"></a>典型应用场景</h2><h3 id="网络故障排查"><a href="#网络故障排查" class="headerlink" title="网络故障排查"></a>网络故障排查</h3><p>当网络出现故障时，Wireshark 可以帮助你定位问题根源。首先捕获故障发生时的数据包，然后分析是否存在丢包、延迟或连接失败。</p>
+<p>排查步骤通常是：从数据包列表中查找异常的重传、重复 ACK 或连接拒绝响应。通过显示过滤器快速定位特定主机或端口的流量。结合统计数据视图查看流量分布和端点信息。</p>
+<h3 id="性能分析"><a href="#性能分析" class="headerlink" title="性能分析"></a>性能分析</h3><p>网络性能问题往往体现在数据包层面。使用 Wireshark 分析延迟来源：测量客户端到服务器的平均往返时间，识别高延迟的特定连接，分析 TCP 窗口大小是否成为瓶颈。</p>
+<p>TCP 吞吐量分析可以揭示实际传输速率与理论值的差距。分析 TCP 拥塞控制机制的工作状态，判断是否存在带宽限制。</p>
+<h3 id="安全分析"><a href="#安全分析" class="headerlink" title="安全分析"></a>安全分析</h3><p>安全分析是 Wireshark 的重要应用领域。分析网络流量中的异常模式，识别潜在的恶意通信。</p>
+<p>检测可疑连接：关注异常端口访问、非标准协议流量或与已知恶意 IP 的通信。分析未加密的敏感数据传输，如明文密码或敏感文件。追踪恶意软件的命令控制通信。</p>
+<p>在进行安全分析时，确保拥有适当的授权，未经授权捕获他人网络流量可能违法。</p>
+<h3 id="应用调试"><a href="#应用调试" class="headerlink" title="应用调试"></a>应用调试</h3><p>开发网络应用时，Wireshark 是调试通信问题的利器。验证应用发送的数据是否符合预期，检查请求和响应的格式是否正确，分析连接问题或超时原因。</p>
+<p>通过追踪 TCP 流功能查看完整的请求响应过程，分析 HTTP 头和主体内容，排查 API 调用问题。</p>
+<h2 id="常用过滤器参考"><a href="#常用过滤器参考" class="headerlink" title="常用过滤器参考"></a>常用过滤器参考</h2><h3 id="按地址过滤"><a href="#按地址过滤" class="headerlink" title="按地址过滤"></a>按地址过滤</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ip.addr == 192.168.1.1          <span class="comment"># 特定 IP</span></span><br><span class="line">ip.src == 192.168.1.1           <span class="comment"># 特定源 IP</span></span><br><span class="line">ip.dst == 192.168.1.1           <span class="comment"># 特定目标 IP</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="按端口过滤"><a href="#按端口过滤" class="headerlink" title="按端口过滤"></a>按端口过滤</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">tcp.port == 80                   <span class="comment"># TCP 端口</span></span><br><span class="line">udp.port == 53                  <span class="comment"># UDP 端口</span></span><br><span class="line">tcp.port == 80 or tcp.port == 443  <span class="comment"># 多端口</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="按协议过滤"><a href="#按协议过滤" class="headerlink" title="按协议过滤"></a>按协议过滤</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">http                            <span class="comment"># HTTP 流量</span></span><br><span class="line">dns                             <span class="comment"># DNS 流量</span></span><br><span class="line">tcp                             <span class="comment"># TCP 流量</span></span><br><span class="line">icmp                            <span class="comment"># ICMP 流量</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="组合过滤"><a href="#组合过滤" class="headerlink" title="组合过滤"></a>组合过滤</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">http and ip.addr == 192.168.1.1    <span class="comment"># HTTP 且特定 IP</span></span><br><span class="line">tcp and not port 80                <span class="comment"># TCP 但排除 80 端口</span></span><br><span class="line">http.request.method == <span class="string">&quot;POST&quot;</span>      <span class="comment"># POST 请求</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="常见错误过滤"><a href="#常见错误过滤" class="headerlink" title="常见错误过滤"></a>常见错误过滤</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">tcp.analysis.retransmission    <span class="comment"># TCP 重传</span></span><br><span class="line">tcp.analysis.lost_segment      <span class="comment"># 丢包</span></span><br><span class="line">tcp.analysis.out_of_order      <span class="comment"># 乱序</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>Wireshark 作为网络协议分析领域的标准工具，其功能远不止本文所介绍的内容。它支持 Lua 脚本扩展进行自动化分析，提供丰富的统计视图，拥有强大的专家信息系统自动标注潜在问题。</p>
+<p>学习 Wireshark 的关键在于勤于实践。建议在虚拟环境或测试网络中捕获流量，尝试各种过滤器，逐步理解各协议的封装结构。随着经验积累，你将能够快速定位复杂的网络问题，成为真正的网络分析专家。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://Doglists.github.io">Doglists</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://doglists.github.io/2026/03/06/Wireshark/">https://doglists.github.io/2026/03/06/Wireshark/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles on this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless otherwise stated.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/CTF/">CTF</a><a class="post-meta__tags" href="/tags/%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8/">网络安全</a></div><div class="post-share"><div class="social-share" data-image="/img/%E5%A4%B4%E5%83%8F.jpg" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/2026/02/28/Stegsolve/" title="图片隐写工具stegsolve 深入解析"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">Next</div><div class="info-item-2">图片隐写工具stegsolve 深入解析</div></div><div class="info-2"><div class="info-item-1">深入理解 Stegsolve：图像隐写分析利器建议读者在本地搭建实验环境，下载一些带有隐藏数据的样本图片进行练习，逐步熟悉 Stegsolve 的各项功能。 一个人，只有在实践中运用能力，才能知道自己的能力。——小塞涅卡 ## 什么是 Stegsolve  Stegsolve 是一款专为图像隐写术（Steganography）设计的分析工具，在 CTF竞赛和网络安全测试领域应用广泛。它由 Java 语言开发，是一个便携的 JAR 文件，能够运行在 Windows、Linux、macOS 等任何安装了 Java 运行时环境的系统上。 隐写术是一种将秘密信息隐藏在载体介质中的技术，而图像隐写正是最常见的手段之一。攻击者可以将文本、文件甚至另一张图片嵌入到一张普通的图片中，而肉眼几乎无法察觉任何异常。Stegsolve 的核心功能就是帮助安全研究人员和 CTF 选手检测和分析这些隐藏在图像中的秘密信息。 在 CTF 竞赛中，隐写类题目占据了相当大的比重。参赛者需要利用 Stegsolve 这样的工具对给定的图片进行分析，提取出被隐藏的 flag 或其他关键信息。对于安全测试人员来说，S...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2026/02/28/Stegsolve/" title="图片隐写工具stegsolve 深入解析"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-02-28</div><div class="info-item-2">图片隐写工具stegsolve 深入解析</div></div><div class="info-2"><div class="info-item-1">深入理解 Stegsolve：图像隐写分析利器建议读者在本地搭建实验环境，下载一些带有隐藏数据的样本图片进行练习，逐步熟悉 Stegsolve 的各项功能。 一个人，只有在实践中运用能力，才能知道自己的能力。——小塞涅卡 ## 什么是 Stegsolve  Stegsolve 是一款专为图像隐写术（Steganography）设计的分析工具，在 CTF竞赛和网络安全测试领域应用广泛。它由 Java 语言开发，是一个便携的 JAR 文件，能够运行在 Windows、Linux、macOS 等任何安装了 Java 运行时环境的系统上。 隐写术是一种将秘密信息隐藏在载体介质中的技术，而图像隐写正是最常见的手段之一。攻击者可以将文本、文件甚至另一张图片嵌入到一张普通的图片中，而肉眼几乎无法察觉任何异常。Stegsolve 的核心功能就是帮助安全研究人员和 CTF 选手检测和分析这些隐藏在图像中的秘密信息。 在 CTF 竞赛中，隐写类题目占据了相当大的比重。参赛者需要利用 Stegsolve 这样的工具对给定的图片进行分析，提取出被隐藏的 flag 或其他关键信息。对于安全测试人员来说，S...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/%E5%A4%B4%E5%83%8F.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Doglists</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">4</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">2</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/Doglists"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="mailto:1909140014@qq.com" target="_blank" title="1909140014@qq.com"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF-Wireshark"><span class="toc-number">1.</span> <span class="toc-text">什么是 Wireshark</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%89%E8%A3%85%E4%B8%8E%E8%BF%90%E8%A1%8C"><span class="toc-number">2.</span> <span class="toc-text">安装与运行</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87"><span class="toc-number">2.1.</span> <span class="toc-text">环境准备</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9C%A8-Windows-%E4%B8%8A%E5%AE%89%E8%A3%85"><span class="toc-number">2.2.</span> <span class="toc-text">在 Windows 上安装</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9C%A8-macOS-%E4%B8%8A%E5%AE%89%E8%A3%85"><span class="toc-number">2.3.</span> <span class="toc-text">在 macOS 上安装</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9C%A8-Linux-%E4%B8%8A%E5%AE%89%E8%A3%85"><span class="toc-number">2.4.</span> <span class="toc-text">在 Linux 上安装</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E5%8A%9F%E8%83%BD%E8%AF%A6%E8%A7%A3"><span class="toc-number">3.</span> <span class="toc-text">核心功能详解</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%95%8C%E9%9D%A2%E5%B8%83%E5%B1%80"><span class="toc-number">3.1.</span> <span class="toc-text">界面布局</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8D%95%E8%8E%B7%E8%BF%87%E6%BB%A4%E5%99%A8"><span class="toc-number">3.2.</span> <span class="toc-text">捕获过滤器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%98%BE%E7%A4%BA%E8%BF%87%E6%BB%A4%E5%99%A8"><span class="toc-number">3.3.</span> <span class="toc-text">显示过滤器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%BD%E8%B8%AA-TCP-%E6%B5%81"><span class="toc-number">3.4.</span> <span class="toc-text">追踪 TCP 流</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8D%8F%E8%AE%AE%E5%88%86%E6%9E%90"><span class="toc-number">3.5.</span> <span class="toc-text">协议分析</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B8%E5%9E%8B%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="toc-number">4.</span> <span class="toc-text">典型应用场景</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BD%91%E7%BB%9C%E6%95%85%E9%9A%9C%E6%8E%92%E6%9F%A5"><span class="toc-number">4.1.</span> <span class="toc-text">网络故障排查</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90"><span class="toc-number">4.2.</span> <span class="toc-text">性能分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E5%85%A8%E5%88%86%E6%9E%90"><span class="toc-number">4.3.</span> <span class="toc-text">安全分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BA%94%E7%94%A8%E8%B0%83%E8%AF%95"><span class="toc-number">4.4.</span> <span class="toc-text">应用调试</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E8%BF%87%E6%BB%A4%E5%99%A8%E5%8F%82%E8%80%83"><span class="toc-number">5.</span> <span class="toc-text">常用过滤器参考</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8C%89%E5%9C%B0%E5%9D%80%E8%BF%87%E6%BB%A4"><span class="toc-number">5.1.</span> <span class="toc-text">按地址过滤</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8C%89%E7%AB%AF%E5%8F%A3%E8%BF%87%E6%BB%A4"><span class="toc-number">5.2.</span> <span class="toc-text">按端口过滤</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8C%89%E5%8D%8F%E8%AE%AE%E8%BF%87%E6%BB%A4"><span class="toc-number">5.3.</span> <span class="toc-text">按协议过滤</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BB%84%E5%90%88%E8%BF%87%E6%BB%A4"><span class="toc-number">5.4.</span> <span class="toc-text">组合过滤</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%B8%E8%A7%81%E9%94%99%E8%AF%AF%E8%BF%87%E6%BB%A4"><span class="toc-number">5.5.</span> <span class="toc-text">常见错误过滤</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">6.</span> <span class="toc-text">总结</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Posts</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/03/06/Wireshark/" title="Wireshark 网络抓包与分析完全指南">Wireshark 网络抓包与分析完全指南</a><time datetime="2026-03-06T02:24:11.000Z" title="Created 2026-03-06 10:24:11">2026-03-06</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/28/Stegsolve/" title="图片隐写工具stegsolve 深入解析">图片隐写工具stegsolve 深入解析</a><time datetime="2026-02-28T02:14:51.000Z" title="Created 2026-02-28 10:14:51">2026-02-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/27/ReadMe/" title="无意义">无意义</a><time datetime="2026-02-27T03:26:07.552Z" title="Created 2026-02-27 11:26:07">2026-02-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/22/Hello_World/" title="Hello World">Hello World</a><time datetime="2026-02-22T07:31:09.600Z" title="Created 2026-02-22 15:31:09">2026-02-22</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By Doglists</span><span class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.1</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.4</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Reading Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light and Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle Between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Settings"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back to Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div id="back-to-top"><a href="javascript:;" title="回到顶部"><i class="fas fa-arrow-up"></i></a></div><div><script src="/js/utils.js?v=5.5.4"></script><script src="/js/main.js?v=5.5.4"></script><div class="js-pjax"></div><script id="canvas_nest" defer="defer" color="255,255,255" opacity="0.7" zIndex="-1" count="99" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/dist/canvas-nest.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><script>(() => {
+  const backToTopBtn = document.getElementById('back-to-top');
+  
+  // Show/hide button based on scroll position
+  const toggleBackToTop = () => {
+    if (window.scrollY > 300) {
+      backToTopBtn.classList.add('show');
+    } else {
+      backToTopBtn.classList.remove('show');
+    }
+  };
+  
+  // Smooth scroll to top
+  backToTopBtn.addEventListener('click', () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  });
+  
+  // Listen for scroll events
+  window.addEventListener('scroll', toggleBackToTop, { passive: true });
+  
+  // Initial check
+  toggleBackToTop();
+  
+  // Handle PJAX navigation
+  document.addEventListener('pjax:complete', () => {
+    toggleBackToTop();
+    backToTopBtn.addEventListener('click', () => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
+  });
+})()</script></body></html>
