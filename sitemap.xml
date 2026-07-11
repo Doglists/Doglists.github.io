@@ -2,7 +2,34 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>https://doglists.github.io/search/index.html</loc>
+    <loc>https://doglists.github.io/2026/03/07/Winhex/</loc>
+    
+    <lastmod>2026-07-11</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://doglists.github.io/2026/03/09/TrueCrypt/</loc>
+    
+    <lastmod>2026-07-11</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://doglists.github.io/2026/02/28/Stegsolve/</loc>
+    
+    <lastmod>2026-07-11</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://doglists.github.io/2026/03/06/Wireshark/</loc>
     
     <lastmod>2026-07-11</lastmod>
     
@@ -13,43 +40,16 @@
   <url>
     <loc>https://doglists.github.io/2026/03/23/Kali-Linux/</loc>
     
-    <lastmod>2026-03-23</lastmod>
+    <lastmod>2026-07-11</lastmod>
     
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>https://doglists.github.io/2026/03/07/Winhex/</loc>
+    <loc>https://doglists.github.io/search/index.html</loc>
     
-    <lastmod>2026-03-09</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://doglists.github.io/2026/03/09/TrueCrypt/</loc>
-    
-    <lastmod>2026-03-09</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://doglists.github.io/2026/03/06/Wireshark/</loc>
-    
-    <lastmod>2026-03-06</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://doglists.github.io/2026/02/28/Stegsolve/</loc>
-    
-    <lastmod>2026-03-06</lastmod>
+    <lastmod>2026-07-11</lastmod>
     
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>

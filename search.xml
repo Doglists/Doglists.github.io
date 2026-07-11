@@ -7,6 +7,12 @@
 <h1 id="Hello-World-Hello-Doglists"><a href="#Hello-World-Hello-Doglists" class="headerlink" title="Hello World!Hello Doglists!"></a>Hello World!Hello Doglists!</h1>]]></content>
   </entry>
   <entry>
+    <title>无意义</title>
+    <url>/2026/02/27/ReadMe/</url>
+    <content><![CDATA[<p>这是Doglists,一名网安专业的CTF业余新手爱好者(菜的一批)，我在同学<a href="https://frozenyears.github.io/">FrozenYears</a>的帮助下搭建了这个博客,会 （<strong><del>懒</del></strong>） 不定期地更新一些CTF解题过程。请多多指教！</p>
+]]></content>
+  </entry>
+  <entry>
     <title>Kali Linux 虚拟机安装避坑指南</title>
     <url>/2026/03/23/Kali-Linux/</url>
     <content><![CDATA[<p align="right">千篇一律的「下一步」教程看腻了？这篇让你少走三年弯路。</p>
@@ -137,6 +143,89 @@
       <tags>
         <tag>网络安全</tag>
         <tag>工具使用</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>图片隐写工具stegsolve 深入解析</title>
+    <url>/2026/02/28/Stegsolve/</url>
+    <content><![CDATA[<h1 id="深入理解-Stegsolve：图像隐写分析利器"><a href="#深入理解-Stegsolve：图像隐写分析利器" class="headerlink" title="深入理解 Stegsolve：图像隐写分析利器"></a>深入理解 Stegsolve：图像隐写分析利器</h1><p>建议读者在本地搭建实验环境，下载一些带有隐藏数据的样本图片进行练习，逐步熟悉 Stegsolve 的各项功能。</p>
+<p align="right">一个人，只有在实践中运用能力，才能知道自己的能力。——小塞涅卡</p>
+## 什么是 Stegsolve
+
+<p>Stegsolve 是一款专为图像隐写术（Steganography）设计的分析工具，在 CTF竞赛和网络安全测试领域应用广泛。它由 Java 语言开发，是一个便携的 JAR 文件，能够运行在 Windows、Linux、macOS 等任何安装了 Java 运行时环境的系统上。</p>
+<p>隐写术是一种将秘密信息隐藏在载体介质中的技术，而图像隐写正是最常见的手段之一。攻击者可以将文本、文件甚至另一张图片嵌入到一张普通的图片中，而肉眼几乎无法察觉任何异常。Stegsolve 的核心功能就是帮助安全研究人员和 CTF 选手检测和分析这些隐藏在图像中的秘密信息。</p>
+<p>在 CTF 竞赛中，隐写类题目占据了相当大的比重。参赛者需要利用 Stegsolve 这样的工具对给定的图片进行分析，提取出被隐藏的 flag 或其他关键信息。对于安全测试人员来说，Stegsolve 同样是不可或缺的工具，可以用于检测敏感信息是否被非法嵌入到图像中。</p>
+<h2 id="安装与运行"><a href="#安装与运行" class="headerlink" title="安装与运行"></a>安装与运行</h2><h3 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h3><p>Stegsolve 是一个依赖 Java 运行的工具，因此在使用前需要确保系统中已安装 Java 运行时环境。你可以通过在终端或命令提示符中执行以下命令来检查 Java 是否已安装：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">java -version</span><br></pre></td></tr></table></figure>
+
+<p>如果命令返回版本号信息，说明 Java 已就绪。若未安装，可以从 <a href="https://www.oracle.com/cn/">Oracle 官网</a>或使用 <a href="https://openjdk.org/">OpenJDK</a> 等开源实现进行安装。</p>
+<h3 id="获取-Stegsolve"><a href="#获取-Stegsolve" class="headerlink" title="获取 Stegsolve"></a>获取 Stegsolve</h3><p>Stegsolve 的官方下载地址为：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">http://www.caesum.com/handbook/Stegsolve.jar</span><br></pre></td></tr></table></figure>
+<p>或用博主搬到GitHub仓库的：<a href="https://github.com/Doglists/CTF_Tools/tree/main/Stegsolve">Stegsolve</a></p>
+<p>下载完成后，将文件保存到任意目录即可。建议在同级目录下创建一个专门的文件夹，用于存放 Stegsolve 以及后续分析过程中可能产生的临时文件。</p>
+<h3 id="启动工具"><a href="#启动工具" class="headerlink" title="启动工具"></a>启动工具</h3><p>运行 Stegsolve 非常简单。在命令行中切换到文件所在目录，然后执行以下命令：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">java -jar Stegsolve.jar</span><br></pre></td></tr></table></figure>
+
+<p>启动成功后，你将看到一个图形化界面，主要包含菜单栏和图像显示区域。界面上方是菜单栏，包括 File、Analyse、Options 三个主要菜单，其中 Analyse 菜单包含了 Stegsolve 的核心分析功能。</p>
+<p>也能直接双击stegsolve.jar打开</p>
+<h2 id="核心功能详解"><a href="#核心功能详解" class="headerlink" title="核心功能详解"></a>核心功能详解</h2><p>Stegsolve 的分析功能主要集中在 Analyse 菜单中，下面详细介绍各个功能的用途和原理。</p>
+<h3 id="File-Format（文件格式分析）"><a href="#File-Format（文件格式分析）" class="headerlink" title="File Format（文件格式分析）"></a>File Format（文件格式分析）</h3><p>File Format 功能用于查看图像文件的元数据和格式信息。当你打开一张图片后，点击 Analyse → File Format，工具会解析并显示图片的文件头信息、尺寸、颜色深度、压缩方式等详细参数。</p>
+<p>在 CTF 题目中，有时 flag 或其他秘密信息会被巧妙地嵌入到图片的文件头或元数据区域。通过 File Format 功能，你可以直观地查看这些隐藏信息，避免遗漏任何解题线索。</p>
+<h3 id="Data-Extract（数据提取）"><a href="#Data-Extract（数据提取）" class="headerlink" title="Data Extract（数据提取）"></a>Data Extract（数据提取）</h3><p>Data Extract 是 Stegsolve 最强大且使用频率最高的功能，专门用于从图像中提取被隐藏的数据。这个功能支持多种提取模式，能够应对不同类型的隐写技术。</p>
+<p>点击 Analyse → Data Extract，会弹出一个详细的配置窗口，包含以下关键选项：</p>
+<h4 id="通道选择（RGBA-Channels）"><a href="#通道选择（RGBA-Channels）" class="headerlink" title="通道选择（RGBA Channels）"></a>通道选择（RGBA Channels）</h4><p>数字图像通常由红（Red）、绿（Green）、蓝（Blue）三个颜色通道组成，必要时还包括透明度（Alpha）通道。不同通道的组合决定了图像的最终颜色。在隐写术中，秘密信息可能被隐藏在任意一个或多个通道中。</p>
+<p>Data Extract 允许你单独或组合选择要分析的通道。例如，你可以只提取红色通道的数据，或者同时提取 RGB 三个通道的组合数据。</p>
+<h4 id="位平面（Bit-Planes）"><a href="#位平面（Bit-Planes）" class="headerlink" title="位平面（Bit Planes）"></a>位平面（Bit Planes）</h4><p>计算机中的每一个像素颜色值都是由若干个比特（bits）表示的。以 8 位灰度图像为例，每个像素的值范围是 0-255，用二进制表示需要 8 个比特。这 8 个比特就构成了 8 个位平面，其中第 0 位是最低有效位（LSB，Least Significant Bit），第 7 位是最高有效位（MSB，Most Significant Bit）。</p>
+<p>Stegsolve 允许你选择提取哪个位平面的数据。在 CTF 题目中，最常见的是 LSB 隐写，即秘密信息被隐藏在最低有效位中。由于 LSB 对图像视觉效果的影响微乎其微，肉眼完全无法分辨原图和含密图的差异。</p>
+<h4 id="位顺序（Bit-Order）"><a href="#位顺序（Bit-Order）" class="headerlink" title="位顺序（Bit Order）"></a>位顺序（Bit Order）</h4><p>位顺序决定了数据在各个比特位中的存储方式。MSB模式从最高位开始读取数据，而 LSB（Least Significant Bit First）模式则从最低位开始。不同的隐写工具可能采用不同的位顺序，需要根据实际情况尝试。</p>
+<h4 id="位平面顺序（Bit-Plane-Order）"><a href="#位平面顺序（Bit-Plane-Order）" class="headerlink" title="位平面顺序（Bit Plane Order）"></a>位平面顺序（Bit Plane Order）</h4><p>对于彩色图像，位平面的排列顺序也很重要。常见的顺序包括 RGB（红-绿-蓝）、BGR（蓝-绿-红）等。如果顺序设置错误，提取出来的数据将是乱码。</p>
+<h4 id="额外字节（Extra-By）"><a href="#额外字节（Extra-By）" class="headerlink" title="额外字节（Extra By）"></a>额外字节（Extra By）</h4><p>这个选项用于处理某些特殊的隐写方式，有时数据不是从每个字节的第 0 位开始存储的，而是可能跳过若干位。Extra By 参数可以帮助你调整提取的起始位置。</p>
+<p>完成所有参数设置后，点击 Preview 可以预览提取结果，点击 Save 将数据保存到文件中。如果隐藏的是文本信息，通常可以直接在预览窗口中看到内容；如果是二进制文件，则需要保存后进一步分析。</p>
+<h3 id="Steregram-Solve（立体图案分析）"><a href="#Steregram-Solve（立体图案分析）" class="headerlink" title="Steregram Solve（立体图案分析）"></a>Steregram Solve（立体图案分析）</h3><p>Steregram Solve 功能主要用于处理一种特殊的隐写技术，即通过水平偏移来隐藏信息。这种技术的原理是将同一张图片或不同的图片以特定的水平偏移量叠加，通过视觉叠加效应呈现出隐藏的内容。</p>
+<p>在 Stegsolve 中，你可以设置不同的水平偏移值，然后实时预览叠加效果。配合 “Go to steregram solve” 按钮，还可以逐步调整偏移量直到找到隐藏内容。这个功能在处理某些特殊的 CTF 隐写题目时非常有用。</p>
+<h3 id="Frame-Browser（帧浏览器）"><a href="#Frame-Browser（帧浏览器）" class="headerlink" title="Frame Browser（帧浏览器）"></a>Frame Browser（帧浏览器）</h3><p>Frame Browser 功能专门用于分析动态图像，特别是 GIF 格式的动画图片。GIF 动画实际上是由多帧静态图像连续播放而成的，每一帧都可能包含隐藏信息。</p>
+<p>点击 Analyse → Frame Browser，Stegsolve 会将 GIF 动画分解为独立的帧并显示在界面中。你可以逐帧查看，逐一分析，不放过任何可能隐藏信息的细节。在 CTF 竞赛中，flag 或重要线索有时会被分散隐藏在动画的不同帧中。</p>
+<h3 id="Image-Combiner（图像合成）"><a href="#Image-Combiner（图像合成）" class="headerlink" title="Image Combiner（图像合成）"></a>Image Combiner（图像合成）</h3><p>Image Combiner 功能允许你对多张图片进行组合运算，从而发现隐藏信息。Stegsolve 支持多种图像组合模式：</p>
+<ul>
+<li><strong>XOR（异或）</strong>：将两张图片对应像素进行异或运算</li>
+<li><strong>ADD（加法）</strong>：将两张图片对应像素的值相加</li>
+<li><strong>SUB（减法）</strong>：将两张图片对应像素的值相减</li>
+<li><strong>AND（与）</strong>：将两张图片对应像素进行与运算</li>
+<li><strong>OR（或）</strong>：将两张图片对应像素进行或运算</li>
+</ul>
+<p>在 CTF 题目中，有时主办方会提供两张看似相同的图片，通过 Image Combiner 对它们进行运算处理，往往能揭示出隐藏的第三张图片或秘密信息。</p>
+<h2 id="典型应用场景"><a href="#典型应用场景" class="headerlink" title="典型应用场景"></a>典型应用场景</h2><h3 id="LSB-隐写数据提取"><a href="#LSB-隐写数据提取" class="headerlink" title="LSB 隐写数据提取"></a>LSB 隐写数据提取</h3><p>LSB（最低有效位）隐写是最基础也是最常见的图像隐写方式。其原理是将秘密信息的每个比特替换为图像像素值的最低位。由于改变最低一位对颜色值的影响微乎其微（对于 0-255 的颜色值，只改变 1），人眼完全无法察觉图片的变化。</p>
+<p>使用 Stegsolve 提取 LSB 隐藏数据的标准操作流程如下：</p>
+<ol>
+<li>点击 File → Open 加载目标图片</li>
+<li>点击 Analyse → Data Extract 打开数据提取窗口</li>
+<li>在通道选择区域选择 RGB</li>
+<li>位平面选择 0（即 LSB）</li>
+<li>位顺序选择 LSB First</li>
+<li>点击 Preview 查看提取结果</li>
+</ol>
+<p>如果 Preview 窗口中显示乱码或无明显内容，可以尝试切换位顺序（如改为 MSB First）或调整位平面（如尝试位平面 1 或 2）。有些隐写工具可能将数据隐藏在次低位而非最低位。</p>
+<h3 id="图像元数据分析"><a href="#图像元数据分析" class="headerlink" title="图像元数据分析"></a>图像元数据分析</h3><p>除了像素数据，图像文件中还存储着丰富的元数据信息，包括拍摄设备、拍摄时间、GPS 坐标、图像处理软件等。这些信息以 EXIF、IPTC 或 XMP 格式存储在文件头部区域。</p>
+<p>通过 File Format 功能，你可以查看图像的完整元数据。在某些 CTF 题目中，flag 会被直接嵌入到这些元数据字段中，例如图片说明（Image Description）或注释（Comment）字段。传统的隐写分析工具可能只关注像素数据而忽略元数据，因此这个功能值得重视。</p>
+<h3 id="GIF-动画帧分析"><a href="#GIF-动画帧分析" class="headerlink" title="GIF 动画帧分析"></a>GIF 动画帧分析</h3><p>GIF 动画由多个帧组成，每一帧都是一幅完整的静态图像。在 CTF 竞赛中，题目设计者可能会将完整的信息分散到多个帧中。例如，第一帧显示 “flag{“，第二帧显示 “some”，第三帧显示 “text}”，只有将所有帧组合起来才能得到完整的 flag。</p>
+<p>Frame Browser 功能让你能够系统地检查每一帧的内容。除此之外，GIF 动画中可能存在”隐藏帧”，即某些帧存在时间极短或在视觉上几乎透明，需要仔细分析才能发现。</p>
+<h3 id="多图组合分析"><a href="#多图组合分析" class="headerlink" title="多图组合分析"></a>多图组合分析</h3><p>有时 CTF 题目会提供两张看起来完全不同的图片，要求选手通过特定的组合方式揭示隐藏信息。这种题目通常会暗示使用的组合方式，例如”XOR”、”叠加”等关键词。</p>
+<p>操作步骤如下：</p>
+<ol>
+<li>点击 File → Open 加载第一张图片</li>
+<li>点击 Analyse → Image Combiner</li>
+<li>在弹出的窗口中点击第二张图片的浏览按钮，加载第二张图片</li>
+<li>选择组合模式（如 XOR、ADD 等）</li>
+<li>点击运算按钮查看结果</li>
+</ol>
+<p>如果第一次尝试未能得到有意义的结果，可以尝试不同的组合模式，直到找到隐藏内容。</p>
+<h2 id="例题"><a href="#例题" class="headerlink" title="例题"></a>例题</h2><p> [IceCTF 2016] [Stega 100 – Pretty Pixels] Write Up<br>题目名称：Pretty Pixels<br>题目描述：Don’t get me wrong, I love pretty colors as much as the next guy…but what does it mean? <a href="https://github.com/Doglists/CTF_Tools/raw/main/Stegsolve/pretty.png">pretty_pixels.png</a><br>Flag:IceCTF{puT_Th4t_1n_yoUr_cOlOrin9_Book_4nD_5moKe_1T}</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>Stegsolve 作为一款经典的图像隐写分析工具，凭借其直观的图形界面和丰富的分析功能，成为了 CTF 选手和安全研究人员的必备工具。它涵盖了从基础的 LSB 提取到复杂的图像组合运算等各类分析场景，能够应对大多数图像隐写类题目。</p>
+<p>学习使用 Stegsolve 的关键在于理解其各项参数的实际含义，特别是通道、位平面、位顺序等概念。只有掌握了这些基础知识，才能在面对不同类型的隐写题目时灵活配置参数，成功提取出隐藏的秘密信息。</p>
+]]></content>
+      <tags>
+        <tag>网络安全</tag>
+        <tag>CTF</tag>
       </tags>
   </entry>
   <entry>
@@ -370,95 +459,6 @@
 </ul>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>WinHex 是一款真正的”瑞士军刀”级工具，它的存在让技术人员能够在最底层的二进制层面理解和操作数据。虽然它的界面看起来有些复古，功能也相当专业，但正是这种专注于核心功能的设计，使其成为程序员、安全研究员、取证专家和系统管理员不可或缺的工具。</p>
 <p>学习 WinHex 的关键在于理解文件格式的底层结构。建议从简单的文件格式开始，逐步了解各种文件的头部结构。随着经验积累，你将能够快速定位和分析复杂的二进制数据，成为真正的逆向工程专家。</p>
-]]></content>
-      <tags>
-        <tag>网络安全</tag>
-        <tag>CTF</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>无意义</title>
-    <url>/2026/02/27/ReadMe/</url>
-    <content><![CDATA[<p>这是Doglists,一名网安专业的CTF业余新手爱好者(菜的一批)，我在同学<a href="https://frozenyears.github.io/">FrozenYears</a>的帮助下搭建了这个博客,会 （<strong><del>懒</del></strong>） 不定期地更新一些CTF解题过程。请多多指教！</p>
-]]></content>
-  </entry>
-  <entry>
-    <title>图片隐写工具stegsolve 深入解析</title>
-    <url>/2026/02/28/Stegsolve/</url>
-    <content><![CDATA[<h1 id="深入理解-Stegsolve：图像隐写分析利器"><a href="#深入理解-Stegsolve：图像隐写分析利器" class="headerlink" title="深入理解 Stegsolve：图像隐写分析利器"></a>深入理解 Stegsolve：图像隐写分析利器</h1><p>建议读者在本地搭建实验环境，下载一些带有隐藏数据的样本图片进行练习，逐步熟悉 Stegsolve 的各项功能。</p>
-<p align="right">一个人，只有在实践中运用能力，才能知道自己的能力。——小塞涅卡</p>
-## 什么是 Stegsolve
-
-<p>Stegsolve 是一款专为图像隐写术（Steganography）设计的分析工具，在 CTF竞赛和网络安全测试领域应用广泛。它由 Java 语言开发，是一个便携的 JAR 文件，能够运行在 Windows、Linux、macOS 等任何安装了 Java 运行时环境的系统上。</p>
-<p>隐写术是一种将秘密信息隐藏在载体介质中的技术，而图像隐写正是最常见的手段之一。攻击者可以将文本、文件甚至另一张图片嵌入到一张普通的图片中，而肉眼几乎无法察觉任何异常。Stegsolve 的核心功能就是帮助安全研究人员和 CTF 选手检测和分析这些隐藏在图像中的秘密信息。</p>
-<p>在 CTF 竞赛中，隐写类题目占据了相当大的比重。参赛者需要利用 Stegsolve 这样的工具对给定的图片进行分析，提取出被隐藏的 flag 或其他关键信息。对于安全测试人员来说，Stegsolve 同样是不可或缺的工具，可以用于检测敏感信息是否被非法嵌入到图像中。</p>
-<h2 id="安装与运行"><a href="#安装与运行" class="headerlink" title="安装与运行"></a>安装与运行</h2><h3 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h3><p>Stegsolve 是一个依赖 Java 运行的工具，因此在使用前需要确保系统中已安装 Java 运行时环境。你可以通过在终端或命令提示符中执行以下命令来检查 Java 是否已安装：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">java -version</span><br></pre></td></tr></table></figure>
-
-<p>如果命令返回版本号信息，说明 Java 已就绪。若未安装，可以从 <a href="https://www.oracle.com/cn/">Oracle 官网</a>或使用 <a href="https://openjdk.org/">OpenJDK</a> 等开源实现进行安装。</p>
-<h3 id="获取-Stegsolve"><a href="#获取-Stegsolve" class="headerlink" title="获取 Stegsolve"></a>获取 Stegsolve</h3><p>Stegsolve 的官方下载地址为：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">http://www.caesum.com/handbook/Stegsolve.jar</span><br></pre></td></tr></table></figure>
-<p>或用博主搬到GitHub仓库的：<a href="https://github.com/Doglists/CTF_Tools/tree/main/Stegsolve">Stegsolve</a></p>
-<p>下载完成后，将文件保存到任意目录即可。建议在同级目录下创建一个专门的文件夹，用于存放 Stegsolve 以及后续分析过程中可能产生的临时文件。</p>
-<h3 id="启动工具"><a href="#启动工具" class="headerlink" title="启动工具"></a>启动工具</h3><p>运行 Stegsolve 非常简单。在命令行中切换到文件所在目录，然后执行以下命令：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">java -jar Stegsolve.jar</span><br></pre></td></tr></table></figure>
-
-<p>启动成功后，你将看到一个图形化界面，主要包含菜单栏和图像显示区域。界面上方是菜单栏，包括 File、Analyse、Options 三个主要菜单，其中 Analyse 菜单包含了 Stegsolve 的核心分析功能。</p>
-<p>也能直接双击stegsolve.jar打开</p>
-<h2 id="核心功能详解"><a href="#核心功能详解" class="headerlink" title="核心功能详解"></a>核心功能详解</h2><p>Stegsolve 的分析功能主要集中在 Analyse 菜单中，下面详细介绍各个功能的用途和原理。</p>
-<h3 id="File-Format（文件格式分析）"><a href="#File-Format（文件格式分析）" class="headerlink" title="File Format（文件格式分析）"></a>File Format（文件格式分析）</h3><p>File Format 功能用于查看图像文件的元数据和格式信息。当你打开一张图片后，点击 Analyse → File Format，工具会解析并显示图片的文件头信息、尺寸、颜色深度、压缩方式等详细参数。</p>
-<p>在 CTF 题目中，有时 flag 或其他秘密信息会被巧妙地嵌入到图片的文件头或元数据区域。通过 File Format 功能，你可以直观地查看这些隐藏信息，避免遗漏任何解题线索。</p>
-<h3 id="Data-Extract（数据提取）"><a href="#Data-Extract（数据提取）" class="headerlink" title="Data Extract（数据提取）"></a>Data Extract（数据提取）</h3><p>Data Extract 是 Stegsolve 最强大且使用频率最高的功能，专门用于从图像中提取被隐藏的数据。这个功能支持多种提取模式，能够应对不同类型的隐写技术。</p>
-<p>点击 Analyse → Data Extract，会弹出一个详细的配置窗口，包含以下关键选项：</p>
-<h4 id="通道选择（RGBA-Channels）"><a href="#通道选择（RGBA-Channels）" class="headerlink" title="通道选择（RGBA Channels）"></a>通道选择（RGBA Channels）</h4><p>数字图像通常由红（Red）、绿（Green）、蓝（Blue）三个颜色通道组成，必要时还包括透明度（Alpha）通道。不同通道的组合决定了图像的最终颜色。在隐写术中，秘密信息可能被隐藏在任意一个或多个通道中。</p>
-<p>Data Extract 允许你单独或组合选择要分析的通道。例如，你可以只提取红色通道的数据，或者同时提取 RGB 三个通道的组合数据。</p>
-<h4 id="位平面（Bit-Planes）"><a href="#位平面（Bit-Planes）" class="headerlink" title="位平面（Bit Planes）"></a>位平面（Bit Planes）</h4><p>计算机中的每一个像素颜色值都是由若干个比特（bits）表示的。以 8 位灰度图像为例，每个像素的值范围是 0-255，用二进制表示需要 8 个比特。这 8 个比特就构成了 8 个位平面，其中第 0 位是最低有效位（LSB，Least Significant Bit），第 7 位是最高有效位（MSB，Most Significant Bit）。</p>
-<p>Stegsolve 允许你选择提取哪个位平面的数据。在 CTF 题目中，最常见的是 LSB 隐写，即秘密信息被隐藏在最低有效位中。由于 LSB 对图像视觉效果的影响微乎其微，肉眼完全无法分辨原图和含密图的差异。</p>
-<h4 id="位顺序（Bit-Order）"><a href="#位顺序（Bit-Order）" class="headerlink" title="位顺序（Bit Order）"></a>位顺序（Bit Order）</h4><p>位顺序决定了数据在各个比特位中的存储方式。MSB模式从最高位开始读取数据，而 LSB（Least Significant Bit First）模式则从最低位开始。不同的隐写工具可能采用不同的位顺序，需要根据实际情况尝试。</p>
-<h4 id="位平面顺序（Bit-Plane-Order）"><a href="#位平面顺序（Bit-Plane-Order）" class="headerlink" title="位平面顺序（Bit Plane Order）"></a>位平面顺序（Bit Plane Order）</h4><p>对于彩色图像，位平面的排列顺序也很重要。常见的顺序包括 RGB（红-绿-蓝）、BGR（蓝-绿-红）等。如果顺序设置错误，提取出来的数据将是乱码。</p>
-<h4 id="额外字节（Extra-By）"><a href="#额外字节（Extra-By）" class="headerlink" title="额外字节（Extra By）"></a>额外字节（Extra By）</h4><p>这个选项用于处理某些特殊的隐写方式，有时数据不是从每个字节的第 0 位开始存储的，而是可能跳过若干位。Extra By 参数可以帮助你调整提取的起始位置。</p>
-<p>完成所有参数设置后，点击 Preview 可以预览提取结果，点击 Save 将数据保存到文件中。如果隐藏的是文本信息，通常可以直接在预览窗口中看到内容；如果是二进制文件，则需要保存后进一步分析。</p>
-<h3 id="Steregram-Solve（立体图案分析）"><a href="#Steregram-Solve（立体图案分析）" class="headerlink" title="Steregram Solve（立体图案分析）"></a>Steregram Solve（立体图案分析）</h3><p>Steregram Solve 功能主要用于处理一种特殊的隐写技术，即通过水平偏移来隐藏信息。这种技术的原理是将同一张图片或不同的图片以特定的水平偏移量叠加，通过视觉叠加效应呈现出隐藏的内容。</p>
-<p>在 Stegsolve 中，你可以设置不同的水平偏移值，然后实时预览叠加效果。配合 “Go to steregram solve” 按钮，还可以逐步调整偏移量直到找到隐藏内容。这个功能在处理某些特殊的 CTF 隐写题目时非常有用。</p>
-<h3 id="Frame-Browser（帧浏览器）"><a href="#Frame-Browser（帧浏览器）" class="headerlink" title="Frame Browser（帧浏览器）"></a>Frame Browser（帧浏览器）</h3><p>Frame Browser 功能专门用于分析动态图像，特别是 GIF 格式的动画图片。GIF 动画实际上是由多帧静态图像连续播放而成的，每一帧都可能包含隐藏信息。</p>
-<p>点击 Analyse → Frame Browser，Stegsolve 会将 GIF 动画分解为独立的帧并显示在界面中。你可以逐帧查看，逐一分析，不放过任何可能隐藏信息的细节。在 CTF 竞赛中，flag 或重要线索有时会被分散隐藏在动画的不同帧中。</p>
-<h3 id="Image-Combiner（图像合成）"><a href="#Image-Combiner（图像合成）" class="headerlink" title="Image Combiner（图像合成）"></a>Image Combiner（图像合成）</h3><p>Image Combiner 功能允许你对多张图片进行组合运算，从而发现隐藏信息。Stegsolve 支持多种图像组合模式：</p>
-<ul>
-<li><strong>XOR（异或）</strong>：将两张图片对应像素进行异或运算</li>
-<li><strong>ADD（加法）</strong>：将两张图片对应像素的值相加</li>
-<li><strong>SUB（减法）</strong>：将两张图片对应像素的值相减</li>
-<li><strong>AND（与）</strong>：将两张图片对应像素进行与运算</li>
-<li><strong>OR（或）</strong>：将两张图片对应像素进行或运算</li>
-</ul>
-<p>在 CTF 题目中，有时主办方会提供两张看似相同的图片，通过 Image Combiner 对它们进行运算处理，往往能揭示出隐藏的第三张图片或秘密信息。</p>
-<h2 id="典型应用场景"><a href="#典型应用场景" class="headerlink" title="典型应用场景"></a>典型应用场景</h2><h3 id="LSB-隐写数据提取"><a href="#LSB-隐写数据提取" class="headerlink" title="LSB 隐写数据提取"></a>LSB 隐写数据提取</h3><p>LSB（最低有效位）隐写是最基础也是最常见的图像隐写方式。其原理是将秘密信息的每个比特替换为图像像素值的最低位。由于改变最低一位对颜色值的影响微乎其微（对于 0-255 的颜色值，只改变 1），人眼完全无法察觉图片的变化。</p>
-<p>使用 Stegsolve 提取 LSB 隐藏数据的标准操作流程如下：</p>
-<ol>
-<li>点击 File → Open 加载目标图片</li>
-<li>点击 Analyse → Data Extract 打开数据提取窗口</li>
-<li>在通道选择区域选择 RGB</li>
-<li>位平面选择 0（即 LSB）</li>
-<li>位顺序选择 LSB First</li>
-<li>点击 Preview 查看提取结果</li>
-</ol>
-<p>如果 Preview 窗口中显示乱码或无明显内容，可以尝试切换位顺序（如改为 MSB First）或调整位平面（如尝试位平面 1 或 2）。有些隐写工具可能将数据隐藏在次低位而非最低位。</p>
-<h3 id="图像元数据分析"><a href="#图像元数据分析" class="headerlink" title="图像元数据分析"></a>图像元数据分析</h3><p>除了像素数据，图像文件中还存储着丰富的元数据信息，包括拍摄设备、拍摄时间、GPS 坐标、图像处理软件等。这些信息以 EXIF、IPTC 或 XMP 格式存储在文件头部区域。</p>
-<p>通过 File Format 功能，你可以查看图像的完整元数据。在某些 CTF 题目中，flag 会被直接嵌入到这些元数据字段中，例如图片说明（Image Description）或注释（Comment）字段。传统的隐写分析工具可能只关注像素数据而忽略元数据，因此这个功能值得重视。</p>
-<h3 id="GIF-动画帧分析"><a href="#GIF-动画帧分析" class="headerlink" title="GIF 动画帧分析"></a>GIF 动画帧分析</h3><p>GIF 动画由多个帧组成，每一帧都是一幅完整的静态图像。在 CTF 竞赛中，题目设计者可能会将完整的信息分散到多个帧中。例如，第一帧显示 “flag{“，第二帧显示 “some”，第三帧显示 “text}”，只有将所有帧组合起来才能得到完整的 flag。</p>
-<p>Frame Browser 功能让你能够系统地检查每一帧的内容。除此之外，GIF 动画中可能存在”隐藏帧”，即某些帧存在时间极短或在视觉上几乎透明，需要仔细分析才能发现。</p>
-<h3 id="多图组合分析"><a href="#多图组合分析" class="headerlink" title="多图组合分析"></a>多图组合分析</h3><p>有时 CTF 题目会提供两张看起来完全不同的图片，要求选手通过特定的组合方式揭示隐藏信息。这种题目通常会暗示使用的组合方式，例如”XOR”、”叠加”等关键词。</p>
-<p>操作步骤如下：</p>
-<ol>
-<li>点击 File → Open 加载第一张图片</li>
-<li>点击 Analyse → Image Combiner</li>
-<li>在弹出的窗口中点击第二张图片的浏览按钮，加载第二张图片</li>
-<li>选择组合模式（如 XOR、ADD 等）</li>
-<li>点击运算按钮查看结果</li>
-</ol>
-<p>如果第一次尝试未能得到有意义的结果，可以尝试不同的组合模式，直到找到隐藏内容。</p>
-<h2 id="例题"><a href="#例题" class="headerlink" title="例题"></a>例题</h2><p> [IceCTF 2016] [Stega 100 – Pretty Pixels] Write Up<br>题目名称：Pretty Pixels<br>题目描述：Don’t get me wrong, I love pretty colors as much as the next guy…but what does it mean? <a href="https://github.com/Doglists/CTF_Tools/raw/main/Stegsolve/pretty.png">pretty_pixels.png</a><br>Flag:IceCTF{puT_Th4t_1n_yoUr_cOlOrin9_Book_4nD_5moKe_1T}</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>Stegsolve 作为一款经典的图像隐写分析工具，凭借其直观的图形界面和丰富的分析功能，成为了 CTF 选手和安全研究人员的必备工具。它涵盖了从基础的 LSB 提取到复杂的图像组合运算等各类分析场景，能够应对大多数图像隐写类题目。</p>
-<p>学习使用 Stegsolve 的关键在于理解其各项参数的实际含义，特别是通道、位平面、位顺序等概念。只有掌握了这些基础知识，才能在面对不同类型的隐写题目时灵活配置参数，成功提取出隐藏的秘密信息。</p>
 ]]></content>
       <tags>
         <tag>网络安全</tag>
